@@ -1,4 +1,5 @@
-$fn = 64;
+$fn = 64; //why this global not work
+detail = 1024; //use this instead
 
 // " Model internal view "
 cut_model_in_half = true;
@@ -42,7 +43,7 @@ module box_part_grubby_screws() {
             rotate([0, 0, i*90]) {
                 translate([box_x/2-m6_box_insert_hole_len/2, 0, 0]) {
                     rotate([0, 90, 0]) {
-                        cylinder(h = m6_box_insert_hole_len, d = m6_insert_dia);
+                        cylinder(h = m6_box_insert_hole_len, d = m6_insert_dia, $fn = detail);
                     }
                 }
             }
@@ -54,12 +55,10 @@ module box(x, y, z, id) {
     difference() {
         cube([x, y, z]);
         translate([x/2, y/2, 0]) {
-            cylinder(h = z, d = id);
+            cylinder(h = z, d = id, $fn = detail);
         }
         box_part_grubby_screws();
     }
-
-
 }
 
 module cylinder_part_grubby_screws() {
@@ -67,7 +66,7 @@ module cylinder_part_grubby_screws() {
         rotate([0, 0, i*90]) {
             translate([cylinder_dia/2- m6_cyl_insert_hole_len, 0, cylinder_z/2]) {
                 rotate([0, 90, 0]) {
-                    cylinder(h = m6_cyl_insert_hole_len, d = m6_insert_dia);
+                    cylinder(h = m6_cyl_insert_hole_len, d = m6_insert_dia, $fn = detail);
                 }
             }
         }
@@ -77,8 +76,8 @@ module cylinder_part_grubby_screws() {
 
 module cylinder_part(height, od, id) {
     difference() {
-        cylinder(h = height, d = od);
-        cylinder(h = height, d = id);
+        cylinder(h = height, d = od, $fn = detail);
+        cylinder(h = height, d = id, $fn = detail);
         cylinder_part_grubby_screws();
     }
 }
@@ -90,11 +89,11 @@ module loft_part() {
                 cube([box_x, box_y, 0.001]);
             }
             translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z]) {
-                cylinder(h = 0.001, d = cylinder_dia);
+                cylinder(h = 0.001, d = cylinder_dia, $fn = detail);
             }
         }
         translate([box_x/2, box_y/2, box_z]) {
-            cylinder(h = box_to_cyl_join_z+0.001, d1 = box_int_cyl_dia, d2 = cyl_int_cyl_dia);
+            cylinder(h = box_to_cyl_join_z+0.001, d1 = box_int_cyl_dia, d2 = cyl_int_cyl_dia, $fn = detail);
         }
     }
 }
