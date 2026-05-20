@@ -12,7 +12,7 @@ part_type = "single piece"; // ["single piece", "two piece base", "two piece rin
 // " Model internal view "
 cut_model_in_half = true;
 model_chop_x = 110; // [-220:5:220]
-model_chop_y = 0; // [-220:5:220]
+model_chop_y = 50; // [-220:5:220]
 
 
 //model chop for print testing. (from simgle piece)
@@ -21,23 +21,27 @@ model_top_ring_chop_z = 50; // [0:1:250]
 cut_model_bottom_ring = false;
 model_bottom_ring_chop_z = 20; // [0:1:250]
 
+//box part internal cylinder diameter - CHANGE TO FIT TUBE
+box_int_cyl_dia = 110.25 * 2;
+
+//cylinder part internal cylinder diameter - CHANGE TO FIT TUBE
+cyl_int_cyl_dia = 102.7 * 2;
+
+//oversize the box by this much
+box_oversize = 20;
+
 //external dims of the box part, if internal cylinder dia is changed, change these to suit
-box_x = 250;
-box_y = 250;
+box_x = box_int_cyl_dia + box_oversize;
+box_y = box_int_cyl_dia + box_oversize;
 box_z = 50;
 
 //external dims of the cylinder part, change as needed.
-cylinder_dia = 190;
+cylinder_dia = cyl_int_cyl_dia + 20;
 cylinder_z = 50;
 
-//box part internal cylinder diameter - CHANGE TO FIT TUBE
-box_int_cyl_dia = 195;
-
-//cylinder part internal cylinder diameter - CHANGE TO FIT TUBE
-cyl_int_cyl_dia = 170;
 
 //the join between them length
-box_to_cyl_join_z = 10;
+box_to_cyl_join_z = 20;
 
 //the grub screw are m6, using a heat insert
 //change meh
@@ -47,11 +51,14 @@ m6_insert_length = 10;
 m6_cyl_insert_hole_len = cylinder_dia - cyl_int_cyl_dia+1;
 m6_box_insert_hole_len = box_x - box_int_cyl_dia+1;
 
-box_inner_stopper_dia = box_int_cyl_dia-4;
-box_inner_stopper_z = 4;
+//the stopper size to prevent tubes from going in too far
+stopper_dia = 14;
+stopper_z = 4;
+box_inner_stopper_dia = box_int_cyl_dia-stopper_dia;
+box_inner_stopper_z = stopper_z;
 
-cylinder_inner_stopper_dia = cyl_int_cyl_dia-4;
-cylinder_inner_stopper_z = 4;
+cylinder_inner_stopper_dia = cyl_int_cyl_dia-stopper_dia;
+cylinder_inner_stopper_z = stopper_z;
 two_piece_ring_lip = 40;
 two_piece_ring_dia = cylinder_dia + two_piece_ring_lip;
 two_piece_ring_bolt_pos = two_piece_ring_lip/4; //1/4 of the above 40
@@ -97,7 +104,7 @@ module cylinder_part_grubby_screws() {
 }
 
 module two_piece_bolt_holes() {
-    for (i = [0:3]) {
+    for (i = [0:7]) {
         rotate([0, 0, i*90]) {
             translate([(cylinder_dia/2)+two_piece_ring_bolt_pos+two_piece_ring_bolt_hole_offset, 0, -0.001]) {
                 rotate([0, 0, 0]) {
@@ -124,14 +131,22 @@ module two_piece_ring() {
 
 module inner_stopper() {
     color("red") {
-        if ((part_type == "two piece base") || (part_type == "two piece ring")) {
+        //if ((part_type == "two piece base") || (part_type == "two piece ring")) {
             translate([box_x/2, box_y/2, box_z]) {
-                tube(box_inner_stopper_z, box_int_cyl_dia, box_inner_stopper_dia);
-            }
+                difference() {
+                cylinder(h = box_to_cyl_join_z+0.001, d1 = box_int_cyl_dia, d2 = cyl_int_cyl_dia);
+                cylinder(h = box_to_cyl_join_z+0.001+box_inner_stopper_z, d1 = box_int_cyl_dia, d2 = cylinder_inner_stopper_dia);
+                }
+
+
+                //tube(box_inner_stopper_z, box_int_cyl_dia, box_inner_stopper_dia);
+        //    }
         }
         if (part_type == "single piece") {
             translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z]) {
                 tube(cylinder_inner_stopper_z, cyl_int_cyl_dia, cylinder_inner_stopper_dia);
+                
+
             }
         }
     }
