@@ -1,18 +1,28 @@
 $fn = 64;
 
-//external dims of the box part
-box_x = 200;
-box_y = 200;
+// " Model internal view "
+cut_model_in_half = true;
+model_chop_x = 110; // [-220:5:220]
+model_chop_y = 0; // [-220:5:220]
+
+cut_model_top_ring = false;
+model_top_ring_chop_z = 50; // [0:1:250]
+cut_model_bottom_ring = false;
+model_bottom_ring_chop_z = 20; // [0:1:250]
+
+//external dims of the box part, if internal cylinder dia is changed, change these to suit
+box_x = 220;
+box_y = 220;
 box_z = 50;
 
-//external dims of the cylinder part
+//external dims of the cylinder part, change as needed.
 cylinder_dia = 190;
 cylinder_z = 50;
 
-//box part internal cylinder diameter
-box_int_cyl_dia = 180;
+//box part internal cylinder diameter - CHANGE TO FIT TUBE
+box_int_cyl_dia = 195;
 
-//cylinder part internal cylinder diameter
+//cylinder part internal cylinder diameter - CHANGE TO FIT TUBE
 cyl_int_cyl_dia = 170;
 
 //the join between them length
@@ -20,7 +30,7 @@ box_to_cyl_join_z = 10;
 
 //the grub screw are m6, using a heat insert
 //change meh
-m6_insert_dia = 6.5; 
+m6_insert_dia = 8.5; 
 //leave these
 m6_insert_length = 10; 
 m6_cyl_insert_hole_len = cylinder_dia - cyl_int_cyl_dia+1;
@@ -97,9 +107,29 @@ module part_join() {
 }
 
 
+
 render() {
-    union() {
-        loft_part();
-        part_join();
+    difference() {
+        union() {
+            loft_part();
+            part_join();
+        }
+        if (cut_model_in_half) {
+            translate([model_chop_x, model_chop_y, 0]) {
+                cube([box_x+10, box_y+10, 1000]);
+            }
+        } else {
+            if (cut_model_bottom_ring) {
+                translate([0, 0, model_bottom_ring_chop_z]) {
+                    cube([box_x+10, box_y+10, 1000]);
+                }
+            }
+            if (cut_model_top_ring) {
+                translate([0, 0, 0]) {
+                    cube([box_x+10, box_y+10, model_top_ring_chop_z]);
+                }
+            }
+
+        }
     }
 }
