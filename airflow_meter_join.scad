@@ -119,11 +119,15 @@ module two_piece_ring() {
 
 module inner_stopper() {
     color("red") {
-        translate([box_x/2, box_y/2, box_z]) {
-            tube(box_inner_stopper_z, box_int_cyl_dia, box_inner_stopper_dia);
+        if ((part_type == "two piece base") || (part_type == "two piece ring")) {
+            translate([box_x/2, box_y/2, box_z]) {
+                tube(box_inner_stopper_z, box_int_cyl_dia, box_inner_stopper_dia);
+            }
         }
-        translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z]) {
-            tube(cylinder_inner_stopper_z, cyl_int_cyl_dia, cylinder_inner_stopper_dia);
+        if (part_type == "single piece") {
+            translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z]) {
+                tube(cylinder_inner_stopper_z, cyl_int_cyl_dia, cylinder_inner_stopper_dia);
+            }
         }
     }
 }
@@ -180,6 +184,7 @@ render() {
             union() {
                 loft_part();
                 part_join();
+                inner_stopper();
                 translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z+cylinder_z+0.001-two_piece_ring_z]) {
                     two_piece_ring();
 
