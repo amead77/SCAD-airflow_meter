@@ -1,5 +1,10 @@
-$fn = 1024; //why this global not work
-//detail = 1024; //use this instead
+/*
+openSCAD model to join two cylinders together, one having a box shape for sitting on a flat surface.
+two options, as a single piece, or as two pieces with a ring to bolt them together.
+
+*/
+
+$fn = 1024;
 
 // single piece or 2 piece model
 part_type = "single piece"; // ["single piece", "two piece base", "two piece ring"]
