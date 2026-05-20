@@ -17,8 +17,8 @@ cut_model_bottom_ring = false;
 model_bottom_ring_chop_z = 20; // [0:1:250]
 
 //external dims of the box part, if internal cylinder dia is changed, change these to suit
-box_x = 220;
-box_y = 220;
+box_x = 250;
+box_y = 250;
 box_z = 50;
 
 //external dims of the cylinder part, change as needed.
@@ -53,7 +53,7 @@ two_piece_ring_bolt_pos = two_piece_ring_lip/4; //1/4 of the above 40
 two_piece_ring_z = 8;
 two_piece_ring_bolt_hole_dia = 10;
 //offset the bolt hole from the edge of the ring
-two_piece_ring_bolt_hole_offset = 10;
+two_piece_ring_bolt_hole_offset = 0;
 
 module box_part_grubby_screws() {
     translate([box_x/2, box_y/2, box_z/2]) {
@@ -164,48 +164,19 @@ module part_join() {
 
 
 render() {
-    if (part_type == "single piece") {
-        difference() {
-            union() {
-                loft_part();
-                part_join();
-                inner_stopper();
-            }
-            if (cut_model_in_half) {
-                translate([model_chop_x, model_chop_y, 0]) {
-                    cube([box_x+10, box_y+10, 1000]);
-                }
-            } else {
-                if (cut_model_bottom_ring) {
-                    translate([0, 0, model_bottom_ring_chop_z]) {
-                        cube([box_x+10, box_y+10, 1000]);
-                    }
-                }
-                if (cut_model_top_ring) {
-                    translate([0, 0, 0]) {
-                        cube([box_x+10, box_y+10, model_top_ring_chop_z]);
-                    }
+    difference() {
+
+        if (part_type == "single piece") {
+                union() {
+                    loft_part();
+                    part_join();
+                    inner_stopper();
                 }
 
-            }
         }
-    }
 
 
-    if (part_type == "two piece base") {
-        union() {
-            loft_part();
-            part_join();
-            translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z+cylinder_z+0.001-two_piece_ring_z]) {
-                two_piece_ring();
-
-            }
-        }
-    }
-
-
-    if (part_type == "two piece ring") {
-        difference() {
+        if (part_type == "two piece base") {
             union() {
                 loft_part();
                 part_join();
@@ -214,8 +185,41 @@ render() {
 
                 }
             }
+        }
 
-            cube([box_x+10, box_y+10, box_z+box_to_cyl_join_z+0.001]);
+
+        if (part_type == "two piece ring") {
+            difference() {
+                union() {
+                    loft_part();
+                    part_join();
+                    translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z+cylinder_z+0.001-two_piece_ring_z]) {
+                        two_piece_ring();
+
+                    }
+                }
+
+                cube([box_x+10, box_y+10, box_z+box_to_cyl_join_z+0.001]);
+            }
+        }
+
+
+        if (cut_model_in_half) {
+            translate([model_chop_x, model_chop_y, 0]) {
+                cube([box_x+10, box_y+10, 1000]);
+            }
+        } else {
+            if (cut_model_bottom_ring) {
+                translate([0, 0, model_bottom_ring_chop_z]) {
+                    cube([box_x+10, box_y+10, 1000]);
+                }
+            }
+            if (cut_model_top_ring) {
+                translate([0, 0, 0]) {
+                    cube([box_x+10, box_y+10, model_top_ring_chop_z]);
+                }
+            }
+
         }
     }
 }
