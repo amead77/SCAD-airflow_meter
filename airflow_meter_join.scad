@@ -6,6 +6,7 @@ cut_model_in_half = true;
 model_chop_x = 110; // [-220:5:220]
 model_chop_y = 0; // [-220:5:220]
 
+//model chop for print testing.
 cut_model_top_ring = false;
 model_top_ring_chop_z = 50; // [0:1:250]
 cut_model_bottom_ring = false;
@@ -36,6 +37,12 @@ m6_insert_dia = 8.5;
 m6_insert_length = 10; 
 m6_cyl_insert_hole_len = cylinder_dia - cyl_int_cyl_dia+1;
 m6_box_insert_hole_len = box_x - box_int_cyl_dia+1;
+
+box_inner_stopper_dia = box_int_cyl_dia-4;
+box_inner_stopper_z = 4;
+
+cylinder_inner_stopper_dia = cyl_int_cyl_dia-4;
+cylinder_inner_stopper_z = 4;
 
 module box_part_grubby_screws() {
     translate([box_x/2, box_y/2, box_z/2]) {
@@ -74,13 +81,24 @@ module cylinder_part_grubby_screws() {
 }
 
 
-module cylinder_part(height, od, id) {
+module tube(height, od, id) {
     difference() {
         cylinder(h = height, d = od, $fn = detail);
         cylinder(h = height, d = id, $fn = detail);
-        cylinder_part_grubby_screws();
     }
 }
+
+module inner_stopper() {
+    color("red") {
+        translate([box_x/2, box_y/2, box_z]) {
+            tube(box_inner_stopper_z, box_int_cyl_dia, box_inner_stopper_dia);
+        }
+        translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z]) {
+            tube(cylinder_inner_stopper_z, cyl_int_cyl_dia, cylinder_inner_stopper_dia);
+        }
+    }
+}
+
 
 module loft_part() {
     difference() {
@@ -99,9 +117,15 @@ module loft_part() {
 }
 
 module part_join() {
-    box(box_x, box_y, box_z, box_int_cyl_dia);
-    translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z]) {
-        cylinder_part(cylinder_z, cylinder_dia, cyl_int_cyl_dia);
+    union() {
+        box(box_x, box_y, box_z, box_int_cyl_dia);
+        translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z]) {
+            difference() {
+                tube(cylinder_z, cylinder_dia, cyl_int_cyl_dia);
+                cylinder_part_grubby_screws();
+        
+            }
+        }
     }
 }
 
@@ -112,6 +136,7 @@ render() {
         union() {
             loft_part();
             part_join();
+            inner_stopper();
         }
         if (cut_model_in_half) {
             translate([model_chop_x, model_chop_y, 0]) {
