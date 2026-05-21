@@ -10,7 +10,7 @@ $fn = 1024;
 part_type = "two piece base"; // ["single piece", "two piece base", "two piece ring"]
 
 // " Model internal view "
-cut_model_in_half = true;
+cut_model_in_half = false;
 model_chop_x = 0; // [-220:5:220]
 model_chop_y = 50; // [-220:5:220]
 
@@ -33,16 +33,19 @@ box_oversize = 20;
 //external dims of the box part, if internal cylinder dia is changed, change these to suit
 box_x = box_int_cyl_dia + box_oversize;
 box_y = box_int_cyl_dia + box_oversize;
-box_z = 50;
+box_z = 20;
 
 //external dims of the cylinder part, change as needed.
 cylinder_dia = cyl_int_cyl_dia + 20;
-cylinder_z = 50;
+cylinder_z = 20;
 
 
 //the join between them length
 box_to_cyl_join_z = 20;
 
+
+//use grub screws in box
+box_grub_screws = "false"; //["true", "false"]
 //the grub screw are m6, using a heat insert
 //change meh
 m6_insert_dia = 8.5; 
@@ -52,25 +55,25 @@ m6_cyl_insert_hole_len = cylinder_dia - cyl_int_cyl_dia+1;
 m6_box_insert_hole_len = box_x - box_int_cyl_dia+1;
 
 //the stopper size to prevent tubes from going in too far
-stopper_dia = 4;
+stopper_dia = 0;
 stopper_z = 2;
 box_inner_stopper_dia = box_int_cyl_dia-stopper_dia;
 box_inner_stopper_z = stopper_z;
 
 cylinder_inner_stopper_dia = cyl_int_cyl_dia-stopper_dia;
 cylinder_inner_stopper_z = stopper_z;
-two_piece_ring_lip = 40;
+two_piece_ring_lip = 20;
 two_piece_ring_dia = cylinder_dia + two_piece_ring_lip;
 two_piece_ring_bolt_pos = two_piece_ring_lip/4; //1/4 of the above 40
 two_piece_ring_z = 8;
-two_piece_ring_bolt_hole_dia = 10;
-two_piece_ring_num_holes = 8;
+two_piece_ring_bolt_hole_dia = 6.4;
+two_piece_ring_num_holes = 3;
 //offset the bolt hole from the edge of the ring
-two_piece_ring_bolt_hole_offset = 10;
+two_piece_ring_bolt_hole_offset = 6;
 //put mounting bolts on the box
 mounting_bolts = "true"; //["true", "false"]
 bolt_dia = 5.2;
-bolt_head_dia = 12;
+bolt_head_dia = 12.5;
 bolt_head_length = 80;
 bolt_body_length = 80;
 
@@ -85,12 +88,14 @@ module bolt(bolt_dia, bolt_head_dia, bolt_head_length, bolt_body_length) {
 
 
 module box_part_grubby_screws() {
-    translate([box_x/2, box_y/2, box_z/2]) {
-        for (i = [0:3]) {
-            rotate([0, 0, i*90]) {
-                translate([box_x/2-m6_box_insert_hole_len/2, 0, 0]) {
-                    rotate([0, 90, 0]) {
-                        cylinder(h = m6_box_insert_hole_len, d = m6_insert_dia);
+    if (box_grub_screws == "true") {
+        translate([box_x/2, box_y/2, box_z/2]) {
+            for (i = [0:3]) {
+                rotate([0, 0, i*90]) {
+                    translate([box_x/2-m6_box_insert_hole_len/2, 0, 0]) {
+                        rotate([0, 90, 0]) {
+                            cylinder(h = m6_box_insert_hole_len, d = m6_insert_dia);
+                        }
                     }
                 }
             }
@@ -218,7 +223,7 @@ module insert_bolts() {
     translate([
         bolt_head_dia * 0.75,
         bolt_head_dia * 0.75,
-        box_z+(bolt_head_length/2)
+        box_z+(bolt_head_length/2)+(bolt_body_length/2)
 
     ]) {
         rotate([180, 0, 0]) {
@@ -240,7 +245,7 @@ module insert_bolts() {
     translate([
         box_x-(bolt_head_dia * 0.75),
         box_y-(bolt_head_dia * 0.75),
-        box_z+(bolt_head_length/2)
+        box_z+(bolt_head_length/2)+(bolt_body_length/2)
 
     ]) {
         rotate([180, 0, 0]) {
@@ -251,7 +256,7 @@ module insert_bolts() {
     translate([
         (bolt_head_dia * 0.75),
         box_y-(bolt_head_dia * 0.75),
-        box_z+(bolt_head_length/2)
+        box_z+(bolt_head_length/2)+(bolt_body_length/2)
 
     ]) {
         rotate([180, 0, 0]) {
