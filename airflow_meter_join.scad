@@ -105,7 +105,7 @@ module cylinder_part_grubby_screws() {
 
 module two_piece_bolt_holes() {
     for (i = [0:7]) {
-        rotate([0, 0, i*90]) {
+        rotate([0, 0, i*45]) {
             translate([(cylinder_dia/2)+two_piece_ring_bolt_pos+two_piece_ring_bolt_hole_offset, 0, -0.001]) {
                 rotate([0, 0, 0]) {
                     cylinder(h = two_piece_ring_z+0.002, d = two_piece_ring_bolt_hole_dia);
@@ -134,20 +134,26 @@ module inner_stopper() {
         //if ((part_type == "two piece base") || (part_type == "two piece ring")) {
             translate([box_x/2, box_y/2, box_z]) {
                 difference() {
-                cylinder(h = box_to_cyl_join_z+0.001, d1 = box_int_cyl_dia, d2 = cyl_int_cyl_dia);
-                cylinder(h = box_to_cyl_join_z+0.001+box_inner_stopper_z, d1 = box_int_cyl_dia, d2 = cylinder_inner_stopper_dia);
+                    cylinder(
+                        h = box_to_cyl_join_z+0.001+box_inner_stopper_z, 
+                        d1 = box_int_cyl_dia, 
+                        d2 = cyl_int_cyl_dia
+                    );
+                    cylinder(
+                        h = box_to_cyl_join_z+0.001+box_inner_stopper_z, 
+                        d1 = box_inner_stopper_dia, 
+                        d2 = cylinder_inner_stopper_dia
+                    );
                 }
 
 
                 //tube(box_inner_stopper_z, box_int_cyl_dia, box_inner_stopper_dia);
         //    }
         }
-        if (part_type == "single piece") {
-            translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z]) {
-                tube(cylinder_inner_stopper_z, cyl_int_cyl_dia, cylinder_inner_stopper_dia);
-                
-
-            }
+        //if (part_type == "two piece ring") {
+        //    translate([box_x/2, box_y/2, box_z+box_to_cyl_join_z]) {
+        //        tube(cylinder_inner_stopper_z, cyl_int_cyl_dia, cylinder_inner_stopper_dia);
+        //    }
         }
     }
 }
